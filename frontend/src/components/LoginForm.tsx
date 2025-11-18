@@ -14,7 +14,7 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -30,6 +30,15 @@ export function LoginForm({
   const [isLogin, setIsLogin] = useState(true);
   const navigate = useNavigate();
 
+  useEffect(() => {
+    // Check if user is already logged in
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!session) return
+
+      navigate("/dashboard")
+    })
+  }, [navigate])
+
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
@@ -41,7 +50,10 @@ export function LoginForm({
           email,
           password,
         });
-        if (error) throw error;
+
+        if (error) {
+          setError(error.message);
+        }
         toast.success("Welcome back!");
         navigate("/dashboard");
       } else {
@@ -52,12 +64,14 @@ export function LoginForm({
             emailRedirectTo: `${window.location.origin}`,
           },
         });
-        if (error) throw error;
+        if (error) {
+          setError(error.message);
+        }
         toast.success("Account created! You can now login.");
         setIsLogin(true);
       }
     } catch (error: any) {
-      toast.error(error.message || "Authentication failed");
+      setError(error.message);
     } finally {
       setLoading(false);
     }
@@ -108,6 +122,9 @@ export function LoginForm({
                   onChange={(e) => setPassword(e.target.value)}
                 />
               </Field>
+              {error && (
+                <p className="text-sm text-red-500 text-center">{error}</p>
+              )}
               <Field>
                 <Button
                   type="submit"
@@ -123,7 +140,10 @@ export function LoginForm({
             <FieldDescription className="text-center">
               <button
                 type="button"
-                onClick={() => setIsLogin(!isLogin)}
+                onClick={() => {
+                  setIsLogin(!isLogin);
+                  setError("");
+                }}
                 className="text-accent hover:underline"
               >
                 {isLogin

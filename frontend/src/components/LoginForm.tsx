@@ -30,14 +30,14 @@ export function LoginForm({
   const [isLogin, setIsLogin] = useState(true);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    // Check if user is already logged in
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!session) return
+  // useEffect(() => {
+  //   // Check if user is already logged in
+  //   supabase.auth.getSession().then(({ data: { session } }) => {
+  //     if (!session) return;
 
-      navigate("/dashboard")
-    })
-  }, [navigate])
+  //     navigate("/dashboard");
+  //   });
+  // }, [navigate]);
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();

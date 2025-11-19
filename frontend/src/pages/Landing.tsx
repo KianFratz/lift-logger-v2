@@ -6,6 +6,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import LandingPageHeader from "@/components/ui/landingPageHeader";
 import {
   BarChart3,
   Dumbbell,
@@ -22,24 +23,7 @@ const Landing = () => {
     <>
       <div className="bg-black">
         {/* Header */}
-        <div>
-          <header className="container mx-auto px-4 py-6 flex justify-between items-center">
-            <div className="flex items-center gap-2">
-              <Dumbbell className="h-8 w-8 text-primary text-violet-500"></Dumbbell>
-              <h1 className="text-2xl font-bold text-white">
-                <Link to={"/"}>Lift Logger</Link>
-              </h1>
-            </div>
-            <div>
-              <Button variant="ghost" className="text-white hover:bg-violet-500">
-                <Link to={"/signin"}>Sign In</Link>{" "}
-              </Button>
-              <Button className="ml-2 text-white bg-violet-500">
-                <Link to={"/signup"}>Get Started</Link>
-              </Button>
-            </div>
-          </header>
-        </div>
+        <LandingPageHeader />
 
         <div className="min-h-screen bg-linear-to-br from-background via-background to-primary/5">
           {/* Hero Section */}

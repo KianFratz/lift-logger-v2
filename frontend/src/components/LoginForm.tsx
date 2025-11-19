@@ -18,6 +18,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { Dumbbell } from "lucide-react";
 
 export function LoginForm({
   className,
@@ -78,13 +79,13 @@ export function LoginForm({
   }
 
   return (
-    <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <Card>
+    <div className={cn("flex flex-col gap-6 ", className)} {...props}>
+      <Card className="bg-gray-400/10 border-gray-400/20">
         <CardHeader>
-          <CardTitle>
+          <CardTitle className="text-white">
             {isLogin ? "Welcome Back, Login to your account" : "Get Started"}
           </CardTitle>
-          <CardDescription>
+          <CardDescription className="text-gray-400">
             {isLogin
               ? "Login to track your lifts"
               : "Create an account to start tracking"}
@@ -94,7 +95,7 @@ export function LoginForm({
           <form onSubmit={handleLogin}>
             <FieldGroup>
               <Field>
-                <FieldLabel htmlFor="email">Email</FieldLabel>
+                <FieldLabel htmlFor="email" className="text-white">Email</FieldLabel>
                 <Input
                   id="email"
                   type="email"
@@ -102,14 +103,15 @@ export function LoginForm({
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  className="text-gray-400"
                 />
               </Field>
               <Field>
                 <div className="flex items-center">
-                  <FieldLabel htmlFor="password">Password</FieldLabel>
+                  <FieldLabel htmlFor="password" className="text-white">Password</FieldLabel>
                   <a
                     href="#"
-                    className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
+                    className="ml-auto inline-block text-sm underline-offset-4 hover:underline text-white"
                   >
                     Forgot your password?
                   </a>
@@ -118,8 +120,11 @@ export function LoginForm({
                   id="password"
                   type="password"
                   required
+                  placeholder="********"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  className="text-gray-400"
+
                 />
               </Field>
               {error && (
@@ -128,7 +133,7 @@ export function LoginForm({
               <Field>
                 <Button
                   type="submit"
-                  className="border hover:bg-black hover:text-white"
+                  className=" text-white bg-violet-500"
                   disabled={loading}
                 >
                   {loading ? "Loading..." : isLogin ? "Login" : "Sign up"}
@@ -144,7 +149,7 @@ export function LoginForm({
                   setIsLogin(!isLogin);
                   setError("");
                 }}
-                className="text-accent hover:underline"
+                className="text-accent hover:underline text-white"
               >
                 {isLogin
                   ? "Don't have an account? Sign up"

@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import WorkoutForm from "@/components/WorkoutForm";
 import { supabase } from "@/lib/supabase/client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@radix-ui/react-tabs";
 import { BarChart3, Dumbbell, History, LogOut, Plus } from "lucide-react";
@@ -8,11 +9,16 @@ import { useNavigate } from "react-router-dom";
 function Dashboard() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("new");
+  const [loading, setLoading] = useState(false)
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
     navigate("/");
   };
+
+  const handleSubmitWorkout = async () => {
+
+  }
 
   return (
     <div className="bg-black min-h-screen pb-8">
@@ -76,7 +82,7 @@ function Dashboard() {
           </TabsList>
 
           <TabsContent value="new" className="space-y-6">
-            {/* <WorkoutForm onSubmit={handleSubmitWorkout} loading={loading} /> */}
+            <WorkoutForm onSubmit={handleSubmitWorkout} loading={loading} />
           </TabsContent>
 
           <TabsContent value="history">

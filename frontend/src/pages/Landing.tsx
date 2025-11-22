@@ -21,7 +21,7 @@ const Landing = () => {
 
   return (
     <>
-      <div className="bg-black">
+      <div className="bg-black min-h-screen pb-8">
         {/* Header */}
         <LandingPageHeader />
 

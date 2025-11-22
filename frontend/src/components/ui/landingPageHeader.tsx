@@ -7,11 +7,9 @@ const LandingPageHeader = () => {
   return (
     <div>
       <header className="container mx-auto px-4 py-6 flex justify-between items-center">
-        <div className="flex items-center gap-2">
-          <Dumbbell className="h-8 w-8 text-primary text-violet-500"></Dumbbell>
-          <h1 className="text-2xl font-bold text-white">
-            <Link to={"/"}>Lift Logger</Link>
-          </h1>
+        <div className="p-2 rounded-xl bg-gradient-to-br from-primary to-primary-glow flex gap-1">
+          <Dumbbell className="h-10 w-10 text-white bg-violet-500/60 rounded-xl p-2" />
+          <h1 className="text-2xl font-bold text-white pl-2 mt-1">Lift Logger</h1>
         </div>
         <div>
           <Button variant="ghost" className="text-white hover:bg-violet-500">
@@ -24,6 +22,6 @@ const LandingPageHeader = () => {
       </header>
     </div>
   );
-}
+};
 
 export default LandingPageHeader;

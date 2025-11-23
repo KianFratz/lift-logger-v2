@@ -104,15 +104,15 @@ function WorkoutForm({ onSubmit, loading }: WorkoutFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-6 bg-gray-900 p-4 rounded-xl">
       {exercises.map((exercise, exerciseIndex) => (
         <Card
           key={exerciseIndex}
-          className="bg-card border-border shadow-[var(--shadow-card)]"
+          className="border border-gray-600 bg-gray-800 text-white"
         >
           <CardHeader className="pb-4">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-lg">
+              <CardTitle className="text-lg font-bold text-white">
                 Exercise {exerciseIndex + 1}
               </CardTitle>
               {exercises.length > 1 && (
@@ -121,7 +121,7 @@ function WorkoutForm({ onSubmit, loading }: WorkoutFormProps) {
                   variant="ghost"
                   size="sm"
                   onClick={() => removeExercise(exerciseIndex)}
-                  className="hover:bg-destructive/10 hover:text-destructive"
+                  className="text-red-400 hover:bg-red-900 hover:text-red-300"
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>
@@ -131,7 +131,7 @@ function WorkoutForm({ onSubmit, loading }: WorkoutFormProps) {
           <CardContent className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor={`exercise-name-${exerciseIndex}`}>
+                <Label htmlFor={`exercise-name-${exerciseIndex}`} className="text-white">
                   Exercise Name
                 </Label>
                 <Input
@@ -142,11 +142,11 @@ function WorkoutForm({ onSubmit, loading }: WorkoutFormProps) {
                   }
                   placeholder="Bench Press"
                   required
-                  className="bg-secondary border-border"
+                  className="bg-gray-700 border-gray-600 text-white placeholder-gray-400 mt-2"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor={`exercise-category-${exerciseIndex}`}>
+                <Label htmlFor={`exercise-category-${exerciseIndex}`} className="text-white">
                   Category
                 </Label>
                 <Select
@@ -155,10 +155,10 @@ function WorkoutForm({ onSubmit, loading }: WorkoutFormProps) {
                     updateExercise(exerciseIndex, "category", value)
                   }
                 >
-                  <SelectTrigger className="bg-secondary border-border">
+                  <SelectTrigger className="bg-gray-700 border-gray-600 text-white mt-2 w-full">
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-gray-800 border-gray-600 text-white">
                     <SelectItem value="Chest">Chest</SelectItem>
                     <SelectItem value="Back">Back</SelectItem>
                     <SelectItem value="Legs">Legs</SelectItem>
@@ -176,7 +176,7 @@ function WorkoutForm({ onSubmit, loading }: WorkoutFormProps) {
               {exercise.sets.map((set, setIndex) => (
                 <div key={setIndex} className="flex gap-3 items-end">
                   <div className="flex-1 space-y-2">
-                    <Label className="text-xs text-muted-foreground">
+                    <Label className="text-xs text-gray-300">
                       Set {set.setNumber}
                     </Label>
                     <div className="grid grid-cols-2 gap-3">
@@ -194,7 +194,7 @@ function WorkoutForm({ onSubmit, loading }: WorkoutFormProps) {
                         placeholder="Reps"
                         required
                         min="0"
-                        className="bg-secondary border-border"
+                        className="bg-gray-700 border-gray-600 text-white mt-2"
                       />
                       <Input
                         type="number"
@@ -211,7 +211,7 @@ function WorkoutForm({ onSubmit, loading }: WorkoutFormProps) {
                         placeholder="Weight (lbs)"
                         required
                         min="0"
-                        className="bg-secondary border-border"
+                        className="bg-gray-700 border-gray-600 text-white mt-2"
                       />
                     </div>
                   </div>
@@ -221,7 +221,7 @@ function WorkoutForm({ onSubmit, loading }: WorkoutFormProps) {
                       variant="ghost"
                       size="sm"
                       onClick={() => removeSet(exerciseIndex, setIndex)}
-                      className="hover:bg-destructive/10 hover:text-destructive mb-[2px]"
+                      className="text-red-400 hover:text-red-300 hover:bg-red-900 mb-[0.5]"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -233,7 +233,7 @@ function WorkoutForm({ onSubmit, loading }: WorkoutFormProps) {
                 variant="outline"
                 size="sm"
                 onClick={() => addSet(exerciseIndex)}
-                className="w-full border-border hover:bg-secondary"
+                className="w-full border-gray-600 text-white hover:bg-gray-700 mt-2"
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Add Set
@@ -247,27 +247,27 @@ function WorkoutForm({ onSubmit, loading }: WorkoutFormProps) {
         type="button"
         variant="outline"
         onClick={addExercise}
-        className="w-full border-border hover:bg-secondary"
+        className="w-full border-gray-600 text-white hover:bg-gray-700"
       >
         <Plus className="h-4 w-4 mr-2" />
         Add Exercise
       </Button>
 
       <div className="space-y-2">
-        <Label htmlFor="notes">Workout Notes (Optional)</Label>
+        <Label htmlFor="notes" className="text-white">Workout Notes (Optional)</Label>
         <Input
           id="notes"
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
           placeholder="Felt strong today..."
-          className="bg-secondary border-border"
+          className="bg-gray-700 text-white border-gray-600 placeholder-gray-400 mt-2"
         />
       </div>
 
       <Button
         type="submit"
         disabled={loading}
-        className="w-full bg-primary hover:bg-primary-glow"
+        className="w-full bg-violet-600 text-white hover:bg-violet-700 font-bold py-2 px-4 rounded cursor-pointer"
       >
         {loading ? "Saving..." : "Save Workout"}
       </Button>

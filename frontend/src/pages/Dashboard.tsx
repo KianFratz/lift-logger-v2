@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import WorkoutForm from "@/components/WorkoutForm";
+import { WorkoutHistory } from "@/components/WorkoutHistory";
 import { supabase } from "@/lib/supabase/client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@radix-ui/react-tabs";
 import type { Session } from "@supabase/supabase-js";
@@ -34,6 +35,8 @@ function Dashboard() {
   const [session, setSession] = useState<Session | null>(null);
   const [workouts, setWorkouts] = useState<Workout[]>([]);
 
+
+  
   useEffect(() => {
     // Set up auth state listener
     const {
@@ -284,10 +287,7 @@ function Dashboard() {
           </TabsContent>
 
           <TabsContent value="history">
-            {/* <WorkoutHistory
-              workouts={workouts}
-              onDelete={handleDeleteWorkout}
-            /> */}
+            <WorkoutHistory workouts={workouts} onDelete={handleDeleteWorkout}/>
           </TabsContent>
 
           <TabsContent value="stats">

@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import WorkoutForm from "@/components/WorkoutForm";
 import { WorkoutHistory } from "@/components/WorkoutHistory";
+import { WorkoutStats } from "@/components/WorkoutStats";
 import { supabase } from "@/lib/supabase/client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@radix-ui/react-tabs";
 import type { Session } from "@supabase/supabase-js";
@@ -291,7 +292,7 @@ function Dashboard() {
           </TabsContent>
 
           <TabsContent value="stats">
-            {/* <WorkoutStats workouts={workouts} /> */}
+            <WorkoutStats workouts={workouts} />
           </TabsContent>
         </Tabs>
       </div>

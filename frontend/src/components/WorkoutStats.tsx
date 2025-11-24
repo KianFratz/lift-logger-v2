@@ -1,73 +1,147 @@
 import { useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import {
+  ResponsiveContainer,
+  BarChart,
+  CartesianGrid,
+  XAxis,
+  YAxis,
+  Tooltip,
+  Bar
+} from "recharts";
+import { format, startOfWeek, subWeeks } from "date-fns";
 
 interface ExerciseSet {
-    setNumber: number;
-    reps: number;
-    weight: number;
+  setNumber: number;
+  reps: number;
+  weight: number;
 }
 
 interface Exercise {
-    id: string;
-    name: string;
-    category: string | null;
-    sets: ExerciseSet[];
+  id: string;
+  name: string;
+  category: string | null;
+  sets: ExerciseSet[];
 }
 
 interface Workout {
-    id: string;
-    workout_date: string;
-    notes: string | null;
-    exercises: Exercise[];
+  id: string;
+  workout_date: string;
+  notes: string | null;
+  exercises: Exercise[];
 }
 
 interface WorkoutStatsProps {
-    workouts: Workout[]
+  workouts: Workout[];
 }
 
-export const WorkoutStats = ( { workouts }: WorkoutStatsProps ) => {
+export const WorkoutStats = ({ workouts }: WorkoutStatsProps) => {
+  const totalWorkouts = workouts.length;
 
-    const totalWorkouts = workouts.length;
-    const totalVolume = useMemo(() => {
-        return workouts.reduce((total, workout) => {
-            return (total + workout.exercises.reduce((exerciseTotal, exercise) => {
-                return (
-                    exerciseTotal +
-                    exercise.sets.reduce(
-                        (setTotal, set) => setTotal + set.reps * set.weight, 0
-                    )
-                );
-            }, 0)
-        );
-        }, 0);
-    }, [workouts])
+  const totalVolume = useMemo(() => {
+    return workouts.reduce((total, workout) => {
+      return (
+        total +
+        workout.exercises.reduce((exerciseTotal, exercise) => {
+          return (
+            exerciseTotal +
+            exercise.sets.reduce(
+              (setTotal, set) => setTotal + set.reps * set.weight,
+              0
+            )
+          );
+        }, 0)
+      );
+    }, 0);
+  }, [workouts]);
 
-    return (
-        <div className="space-y-6">
-            {/* Summary cards */}
-            <div className="grid grid-cols-2 gap-4">
-                <Card className="bg-gray-900 border-gray-700">
-                    <CardHeader className="pb-2">
-                        <CardTitle className="text-white text-sm font-medium">
-                            Total Workouts
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-white text-3xl font-bold">{totalWorkouts}</div>
-                    </CardContent>
-                </Card>
-                <Card className="bg-gray-900 border-gray-700">
-                    <CardHeader className="pb-2">
-                        <CardTitle className="text-white text-sm font-medium">Total Volume</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-white  text-3xl font-bold">
-                            {Math.round(totalVolume).toLocaleString()}
-                        </div>
-                        <p className="text-sx text-white">lbs</p>
-                    </CardContent>
-                </Card>
+  const weeklyWorkouts = useMemo(() => {
+    const weeks: any[] = [];
+    for (let i = 7; i >= 0; i--) {
+      const weekStart = startOfWeek(subWeeks(new Date(), i));
+      weeks.push({
+        week: format(weekStart, "MMM d"),
+        count: 0,
+      });
+    }
+
+    workouts.forEach((workout) => {
+      const workoutDate = new Date(workout.workout_date);
+      const weekStart = startOfWeek(workoutDate);
+
+      weeks.forEach((week) => {
+        const weekDate = new Date(week.week + ", " + new Date().getFullYear());
+        if (format(weekStart, "MMM d") === format(weekDate, "MMM d")) {
+          week.count++;
+        }
+      });
+    });
+
+    return weeks;
+  }, [workouts]);
+
+  return (
+    <div className="space-y-6">
+      {/* Summary cards */}
+      <div className="grid grid-cols-2 gap-4">
+        <Card className="bg-gray-900 border-gray-700">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-white text-sm font-medium">
+              Total Workouts
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-white text-3xl font-bold">{totalWorkouts}</div>
+          </CardContent>
+        </Card>
+        <Card className="bg-gray-900 border-gray-700">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-white text-sm font-medium">
+              Total Volume
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-white  text-3xl font-bold">
+              {Math.round(totalVolume).toLocaleString()}
             </div>
-        </div>
-    )
-}
+            <p className="text-sx text-white">lbs</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Workout frequency chart */}
+      <Card className="bg-gray-900 border-gray-700">
+        <CardHeader>
+          <CardTitle className="text-white">
+            Workout Frequency (Last 8 Weeks)
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="">
+          <ResponsiveContainer width="100%" height={250}>
+            <BarChart data={weeklyWorkouts}>
+              <CartesianGrid
+                strokeDasharray="3 3"
+                stroke="#333333"
+              />
+              <XAxis
+                dataKey="week"
+                stroke="#808588"
+                fontSize={12}
+              />
+              <YAxis stroke="#808588" fontSize={12} />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: "#1e1b4b",
+                  border: "1px solid #7c3aed",
+                  borderRadius: "8px",
+                  color: "#e9d5ff"
+                }}
+              />
+              <Bar dataKey="count" fill="#8b5cf6" radius={[8, 8, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};

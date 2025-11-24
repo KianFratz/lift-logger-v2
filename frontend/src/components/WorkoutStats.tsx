@@ -10,7 +10,10 @@ import {
   Bar,
   PieChart,
   Pie,
-  Cell
+  Cell,
+  LineChart,
+  Legend,
+  Line,
 } from "recharts";
 import { format, startOfWeek, subWeeks } from "date-fns";
 
@@ -38,7 +41,15 @@ interface WorkoutStatsProps {
   workouts: Workout[];
 }
 
-const COLORS = ["#3b82f6", "#60a5fa", "#f59e0b", "#6366f1", "#9ca3af", "#8884d8", "#82ca9d"]
+const COLORS = [
+  "#3b82f6",
+  "#60a5fa",
+  "#f59e0b",
+  "#6366f1",
+  "#9ca3af",
+  "#8884d8",
+  "#82ca9d",
+];
 
 export const WorkoutStats = ({ workouts }: WorkoutStatsProps) => {
   const totalWorkouts = workouts.length;
@@ -93,7 +104,7 @@ export const WorkoutStats = ({ workouts }: WorkoutStatsProps) => {
       workout.exercises.forEach((exercise) => {
         const category = exercise.category || "Other";
         const volume = exercise.sets.reduce(
-          (total, set) => total + set.reps * set.weight, 
+          (total, set) => total + set.reps * set.weight,
           0
         );
         categoryMap.set(category, (categoryMap.get(category) || 0) + volume);
@@ -103,6 +114,80 @@ export const WorkoutStats = ({ workouts }: WorkoutStatsProps) => {
     return Array.from(categoryMap.entries())
       .map(([name, value]) => ({ name, value: Math.round(value) }))
       .sort((a, b) => b.value - a.value);
+  }, [workouts]);
+
+  // Exercise progression (top 3 exercises by frequency)
+  const exerciseProgression = useMemo(() => {
+    // Find top Exercises
+    const exerciseFrequency = new Map<string, number>();
+    workouts.forEach((workout) => {
+      workout.exercises.forEach((exercise) => {
+        exerciseFrequency.set(
+          exercise.name,
+          (exerciseFrequency.get(exercise.name) || 0) + 1
+        );
+      });
+    });
+
+    const topExercises = Array.from(exerciseFrequency.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3)
+      .map(([name]) => name);
+
+    // Get progression data for top exercises
+    const progressionData: Record<string, any[]> = {};
+
+    topExercises.forEach((exerciseName) => {
+      progressionData[exerciseName] = [];
+    });
+
+    workouts
+      .slice()
+      .reverse()
+      .forEach((workout) => {
+        workout.exercises.forEach((exercise) => {
+          if (topExercises.includes(exercise.name)) {
+            const maxWeight = Math.max(...exercise.sets.map((s) => s.weight));
+            progressionData[exercise.name].push({
+              date: format(new Date(workout.workout_date), "MMM d"),
+              weight: maxWeight,
+            });
+          }
+        });
+      });
+
+    // Merge all exercise data into single array
+    const allDates = new Set<string>();
+    Object.values(progressionData).forEach((data) => {
+      data.forEach((entry) => allDates.add(entry.date));
+    });
+
+    return Array.from(allDates).map((date) => {
+      const dataPoint: any = { date };
+      topExercises.forEach((exercise) => {
+        const entry = progressionData[exercise].find((e) => e.date === date);
+        dataPoint[exercise] = entry ? entry.weight : null;
+      });
+      return dataPoint;
+    });
+  }, [workouts]);
+
+  const topExerciseNames = useMemo(() => {
+    const exerciseFrequency = new Map<string, number>();
+
+    workouts.forEach((workout) => {
+      workout.exercises.forEach((exercise) => {
+        exerciseFrequency.set(
+          exercise.name,
+          (exerciseFrequency.get(exercise.name) || 0) + 1
+        );
+      });
+    });
+
+    return Array.from(exerciseFrequency.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3)
+      .map(([name]) => name);
   }, [workouts]);
 
   return (
@@ -144,22 +229,15 @@ export const WorkoutStats = ({ workouts }: WorkoutStatsProps) => {
         <CardContent className="">
           <ResponsiveContainer width="100%" height={250}>
             <BarChart data={weeklyWorkouts}>
-              <CartesianGrid
-                strokeDasharray="3 3"
-                stroke="#333333"
-              />
-              <XAxis
-                dataKey="week"
-                stroke="#808588"
-                fontSize={12}
-              />
+              <CartesianGrid strokeDasharray="3 3" stroke="#333333" />
+              <XAxis dataKey="week" stroke="#808588" fontSize={12} />
               <YAxis stroke="#808588" fontSize={12} />
               <Tooltip
                 contentStyle={{
                   backgroundColor: "#1e1b4b",
                   border: "1px solid #7c3aed",
                   borderRadius: "8px",
-                  color: "#e9d5ff"
+                  color: "#e9d5ff",
                 }}
               />
               <Bar dataKey="count" fill="#8b5cf6" radius={[8, 8, 0, 0]} />
@@ -182,23 +260,68 @@ export const WorkoutStats = ({ workouts }: WorkoutStatsProps) => {
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({ name, percent }) => `${name} ${percent ? (percent * 100).toFixed(0) : 0}%`}
+                  label={({ name, percent }) =>
+                    `${name} ${percent ? (percent * 100).toFixed(0) : 0}%`
+                  }
                   outerRadius={80}
                   fill="#8884d8"
                   dataKey="value"
                 >
                   {volumeByCategory.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={COLORS[index % COLORS.length]}
+                    />
                   ))}
                 </Pie>
               </PieChart>
-              <Tooltip 
+              <Tooltip
                 contentStyle={{
                   backgroundColor: "#1e293b",
                   border: "1px solid #334155",
-                  borderRadius: "8px"
+                  borderRadius: "8px",
                 }}
               />
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Exercise Progression */}
+      {exerciseProgression.length > 0 && topExerciseNames.length > 0 && (
+        <Card className="bg-gray-900 border-gray-700">
+          <CardHeader>
+            <CardTitle className="text-white font-bold">
+              Exercise Progression (Top 3)
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={250}>
+              <LineChart data={exerciseProgression}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#23232" />
+                <XAxis dataKey="date" stroke="#808588" fontSize={12} />
+                <YAxis stroke="#808588" fontSize={12} />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "#1e293b",
+                    border: "1px solid #334155",
+                    borderRadius: "8px",
+                    color: "#e9d5ff",
+                  }}
+                />
+                <Legend />
+                {topExerciseNames.map((exercise, index) => (
+                  <Line
+                    key={exercise}
+                    type="monotone"
+                    dataKey={exercise}
+                    stroke={COLORS[index]}
+                    strokeWidth={2}
+                    dot={{ r: 4 }}
+                    connectNulls
+                  />
+                ))}
+              </LineChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>

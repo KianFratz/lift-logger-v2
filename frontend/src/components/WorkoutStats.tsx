@@ -7,7 +7,10 @@ import {
   XAxis,
   YAxis,
   Tooltip,
-  Bar
+  Bar,
+  PieChart,
+  Pie,
+  Cell
 } from "recharts";
 import { format, startOfWeek, subWeeks } from "date-fns";
 
@@ -34,6 +37,8 @@ interface Workout {
 interface WorkoutStatsProps {
   workouts: Workout[];
 }
+
+const COLORS = ["#3b82f6", "#60a5fa", "#f59e0b", "#6366f1", "#9ca3af", "#8884d8", "#82ca9d"]
 
 export const WorkoutStats = ({ workouts }: WorkoutStatsProps) => {
   const totalWorkouts = workouts.length;
@@ -67,17 +72,37 @@ export const WorkoutStats = ({ workouts }: WorkoutStatsProps) => {
 
     workouts.forEach((workout) => {
       const workoutDate = new Date(workout.workout_date);
-      const weekStart = startOfWeek(workoutDate);
+      const weekStart = startOfWeek(workoutDate); // Find which week this workout belongs to
 
       weeks.forEach((week) => {
         const weekDate = new Date(week.week + ", " + new Date().getFullYear());
         if (format(weekStart, "MMM d") === format(weekDate, "MMM d")) {
-          week.count++;
+          week.count++; // Increment count if workout matches this week
         }
       });
     });
 
     return weeks;
+  }, [workouts]); // Recalculates only when workouts change
+
+  // Volume by muscle group
+  const volumeByCategory = useMemo(() => {
+    const categoryMap = new Map<string, number>();
+
+    workouts.forEach((workout) => {
+      workout.exercises.forEach((exercise) => {
+        const category = exercise.category || "Other";
+        const volume = exercise.sets.reduce(
+          (total, set) => total + set.reps * set.weight, 
+          0
+        );
+        categoryMap.set(category, (categoryMap.get(category) || 0) + volume);
+      });
+    });
+
+    return Array.from(categoryMap.entries())
+      .map(([name, value]) => ({ name, value: Math.round(value) }))
+      .sort((a, b) => b.value - a.value);
   }, [workouts]);
 
   return (
@@ -142,6 +167,42 @@ export const WorkoutStats = ({ workouts }: WorkoutStatsProps) => {
           </ResponsiveContainer>
         </CardContent>
       </Card>
+
+      {/* Volume by Muscle group */}
+      {volumeByCategory.length > 0 && (
+        <Card className="bg-gray-900 border-gray-700">
+          <CardHeader className="text-white font-bold">
+            Volume by Muscle Group
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={250}>
+              <PieChart>
+                <Pie
+                  data={volumeByCategory}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                  outerRadius={80}
+                  fill="#8884d8"
+                  dataKey="value"
+                >
+                  {volumeByCategory.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+              </PieChart>
+              <Tooltip 
+                contentStyle={{
+                  backgroundColor: "#1e293b",
+                  border: "1px solid #334155",
+                  borderRadius: "8px"
+                }}
+              />
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };
